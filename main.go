@@ -7,7 +7,10 @@ import (
 	"net/http"
 	"strings"
 	"sync/atomic"
+	
 )
+
+import _ "github.com/lib/pq"
 
 func main() {
 	mux := http.NewServeMux()
@@ -78,32 +81,33 @@ func validate_chirp(w http.ResponseWriter, r *http.Request) {
 		Body string `json:"body"`
 	}
 	type returnVals struct {
-		Valid bool `json:"valid"`
+		CleanedBody string `json:"cleaned_body"`
 	}
 	decoder := json.NewDecoder(r.Body)
 	params := parameters{}
 	err := decoder.Decode(&params)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Something went wrong")
-		w.WriteHeader(500)
 		return
 	}
 	if len(params.Body) > 140 {
 		respondWithError(w, http.StatusBadRequest, "Chirp is too long")
-		w.WriteHeader(400)
 		return
 	}
 	badWords := badWords()
 	textArray := strings.Split(params.Body, ` `)
+
 	for _, badWord := range badWords {
-		for _, word := range textArray {
-			if word == badWord {
-				word = "****"
+		for i, word := range textArray {
+			if strings.ToLower(word) == badWord {
+				textArray[i] = "****"
 			}
+
 		}
 	}
+	joinedString := strings.Join(textArray, " ")
 	respondWithJSON(w, 200, returnVals{
-		Valid: true,
+		CleanedBody: joinedString,
 	})
 }
 func respondWithError(w http.ResponseWriter, code int, msg string) error {
