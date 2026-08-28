@@ -9,4 +9,4 @@ ORDER BY created_at ASC;
 
 -- name: GetSingleChirp :one
 SELECT * FROM chirps
-WHERE id = $1;
+WHERE message_id = $1;
