@@ -141,3 +141,7 @@ func TestBearerToken(t *testing.T) {
 		})
 	}
 }
+
+func TestMakeRefreshToken(t *testing.T) {
+	t.Logf("Refresh Token: %v", MakeRefreshToken())
+}

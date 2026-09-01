@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"log"
@@ -73,5 +75,21 @@ func GetBearerToken(headers http.Header) (string, error) {
 		return TOKEN_STRING, nil
 	}
 	err := fmt.Errorf("Headers - Authorization is empty")
+	return "", err
+}
+
+func MakeRefreshToken() string {
+	key := make([]byte, 32)
+	rand.Read(key)
+	EncodedToString := hex.EncodeToString(key)
+	return EncodedToString
+}
+
+func GetAPIKEY(headers http.Header) (string, error) {
+	if headers.Get("Authorization") != "" {
+		ApiKey := strings.TrimPrefix(headers.Get("Authorization"), "ApiKey ")
+		return ApiKey, nil
+	}
+	err := fmt.Errorf("Headers- Authorization is empty")
 	return "", err
 }
